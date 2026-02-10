@@ -1,0 +1,49 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Kanban Board"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.6", "GL Compatibility")
+run/low_processor_mode=true
+config/icon="res://icon.svg"
+
+[audio]
+
+driver/driver="Dummy"
+
+[autoload]
+
+BoardManager="*res://board_manager.gd"
+McpBridgeGame="*res://mcp_bridge_game.gd"
+
+[display]
+
+window/size/viewport_width=900
+window/size/viewport_height=600
+
+[dotnet]
+
+project/assembly_name="New Game Project"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/mcp_bridge/plugin.cfg")
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

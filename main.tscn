@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://cl3vtw6n2ehh0"]
+
+[ext_resource type="Script" uid="uid://u4bsbyyj7vgf" path="res://main.gd" id="1_script"]
+
+[node name="Main" type="Control" unique_id=1202669236]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=377225688]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=26291356]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1362632919]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Kanban Board"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=1182163634]
+layout_mode = 2
+
+[node name="ColumnContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=996361329]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12

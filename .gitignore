@@ -1,0 +1,11 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Engine docs (reference copy, not part of project)
+/engine-docs/
+
+# Python
+mcp/.venv/
+mcp/uv.lock
+__pycache__/
