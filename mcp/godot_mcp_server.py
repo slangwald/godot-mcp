@@ -181,6 +181,116 @@ def set_resource(node_path: str, property: str, resource_type: str, resource_pro
     return json.dumps(result, indent=2)
 
 
+@mcp.tool()
+def attach_script(node_path: str, source: str) -> str:
+    """Create and attach an inline GDScript to a node in the editor scene tree.
+
+    Args:
+        node_path: Path to the node (e.g. "Cube")
+        source: GDScript source code (e.g. "extends MeshInstance3D\\n\\nfunc _process(delta):\\n\\trotate_y(delta)")
+    """
+    result = _send_to_editor({"cmd": "attach_script", "node_path": node_path, "source": source})
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def set_script(node_path: str, path: str) -> str:
+    """Assign an existing .gd script file to a node in the editor scene tree.
+
+    Args:
+        node_path: Path to the node (e.g. "Player")
+        path: Resource path to the script (e.g. "res://player.gd")
+    """
+    result = _send_to_editor({"cmd": "set_script", "node_path": node_path, "path": path})
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def get_signals(node_path: str) -> str:
+    """List all signals on a node and their connections.
+
+    Args:
+        node_path: Path to the node (e.g. "Button")
+    """
+    result = _send_to_editor({"cmd": "get_signals", "node_path": node_path})
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def connect_signal(source_path: str, signal_name: str, target_path: str, method: str) -> str:
+    """Connect a signal from one node to a method on another node.
+
+    Args:
+        source_path: Path to the node emitting the signal (e.g. "Button")
+        signal_name: Name of the signal (e.g. "pressed")
+        target_path: Path to the node receiving the signal (e.g. ".")
+        method: Method name on the target node (e.g. "_on_button_pressed")
+    """
+    result = _send_to_editor({
+        "cmd": "connect_signal",
+        "source_path": source_path,
+        "signal_name": signal_name,
+        "target_path": target_path,
+        "method": method,
+    })
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def list_resources(directory: str = "res://", extensions: list[str] = []) -> str:
+    """List all resource files in the Godot project (.tscn, .gd, .tres, etc.).
+
+    Args:
+        directory: Starting directory (default "res://")
+        extensions: File extensions to include (default: tscn, scn, gd, tres, res, gdshader)
+    """
+    result = _send_to_editor({
+        "cmd": "list_resources",
+        "directory": directory,
+        "extensions": extensions,
+    })
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def instantiate_scene(parent_path: str, scene_path: str, name: str = "") -> str:
+    """Instantiate an existing .tscn scene as a child of a node in the editor.
+
+    Args:
+        parent_path: Path to the parent node (e.g. "." for scene root)
+        scene_path: Resource path to the scene file (e.g. "res://examples/kanban/kanban_card.tscn")
+        name: Optional name for the new instance
+    """
+    result = _send_to_editor({
+        "cmd": "instantiate_scene",
+        "parent_path": parent_path,
+        "scene_path": scene_path,
+        "name": name,
+    })
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def get_output() -> str:
+    """Read recent output from the Godot editor log (prints, errors, warnings)."""
+    result = _send_to_editor({"cmd": "get_output"})
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def undo() -> str:
+    """Undo the last action in the Godot editor."""
+    result = _send_to_editor({"cmd": "undo"})
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def redo() -> str:
+    """Redo the last undone action in the Godot editor."""
+    result = _send_to_editor({"cmd": "redo"})
+    return json.dumps(result, indent=2)
+
+
 # ── Game tools (via autoload on TCP:9501) ─────────────────────────────────────
 
 

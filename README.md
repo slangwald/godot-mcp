@@ -20,6 +20,12 @@ Claude can run your project, take screenshots, inspect and edit the scene tree, 
 | `create_node` | Add new nodes to the scene |
 | `delete_node` | Remove nodes from the scene |
 | `set_resource` | Create and assign Resources (meshes, materials, etc.) to nodes |
+| `attach_script` | Create and attach inline GDScript to a node |
+| `set_script` | Assign an existing .gd file to a node |
+| `get_signals` | List all signals on a node and their connections |
+| `connect_signal` | Wire up a signal connection between two nodes |
+| `instantiate_scene` | Add an existing .tscn as a child node |
+| `list_resources` | List all project files (.tscn, .gd, .tres, etc.) |
 | `run_project` | Launch the game from the editor |
 | `run_scene` | Run a specific scene (not just the main scene) |
 | `stop_project` | Stop the running game |
@@ -28,6 +34,8 @@ Claude can run your project, take screenshots, inspect and edit the scene tree, 
 | `save_scene` | Save the current scene |
 | `open_scene` | Open a scene file in the editor |
 | `get_editor_state` | Check which scene is open, whether the game is running |
+| `get_output` | Read recent Godot editor log output (prints, errors) |
+| `undo` / `redo` | Undo or redo the last editor action |
 
 ## How It Works
 

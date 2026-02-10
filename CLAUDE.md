@@ -22,7 +22,7 @@ Claude Code ←stdio→ Python MCP Server ←TCP:9500→ Godot Editor Plugin
 
 Python FastMCP server. Talks to Claude Code via stdio, forwards commands to Godot over TCP. Cross-platform (Mac, Windows, Linux).
 
-**Editor tools** (port 9500): `get_scene_tree`, `get_node_properties`, `modify_node`, `create_node`, `delete_node`, `run_project`, `run_scene`, `stop_project`, `save_scene`, `get_editor_state`, `open_scene`, `set_resource`
+**Editor tools** (port 9500): `get_scene_tree`, `get_node_properties`, `modify_node`, `create_node`, `delete_node`, `set_resource`, `attach_script`, `set_script`, `get_signals`, `connect_signal`, `instantiate_scene`, `list_resources`, `run_project`, `run_scene`, `stop_project`, `save_scene`, `get_editor_state`, `open_scene`, `get_output`, `undo`, `redo`
 
 **Game tools** (port 9501): `screenshot` (returns PNG as base64 image), `get_runtime_tree`
 

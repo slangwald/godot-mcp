@@ -96,6 +96,24 @@ func _handle_request(client: StreamPeerTCP, data: String) -> void:
 			response = _cmd_open_scene(request.get("path", ""))
 		"set_resource":
 			response = _cmd_set_resource(request.get("node_path", ""), request.get("property", ""), request.get("resource_type", ""), request.get("resource_properties", {}))
+		"attach_script":
+			response = _cmd_attach_script(request.get("node_path", ""), request.get("source", ""))
+		"set_script":
+			response = _cmd_set_script(request.get("node_path", ""), request.get("path", ""))
+		"get_signals":
+			response = _cmd_get_signals(request.get("node_path", ""))
+		"connect_signal":
+			response = _cmd_connect_signal(request.get("source_path", ""), request.get("signal_name", ""), request.get("target_path", ""), request.get("method", ""))
+		"list_resources":
+			response = _cmd_list_resources(request.get("directory", "res://"), request.get("extensions", []))
+		"instantiate_scene":
+			response = _cmd_instantiate_scene(request.get("parent_path", ""), request.get("scene_path", ""), request.get("name", ""))
+		"get_output":
+			response = _cmd_get_output()
+		"undo":
+			response = _cmd_undo()
+		"redo":
+			response = _cmd_redo()
 		_:
 			response = {"error": "Unknown command: %s" % cmd}
 
@@ -317,7 +335,242 @@ func _cmd_open_scene(path: String) -> Dictionary:
 	return {"ok": true, "scene_path": path}
 
 
+func _cmd_attach_script(node_path: String, source: String) -> Dictionary:
+	if node_path.is_empty() or source.is_empty():
+		return {"error": "node_path and source are required"}
+
+	var node := _resolve_node(node_path)
+	if not node:
+		return {"error": "Node not found: %s" % node_path}
+
+	var script := GDScript.new()
+	script.source_code = source
+	var err := script.reload()
+	if err != OK:
+		return {"error": "Script compilation failed (error %d). Check syntax." % err}
+
+	node.set_script(script)
+	return {"ok": true, "node_path": node_path}
+
+
+func _cmd_set_script(node_path: String, path: String) -> Dictionary:
+	if node_path.is_empty() or path.is_empty():
+		return {"error": "node_path and path are required"}
+
+	var node := _resolve_node(node_path)
+	if not node:
+		return {"error": "Node not found: %s" % node_path}
+
+	if not ResourceLoader.exists(path):
+		return {"error": "Script file not found: %s" % path}
+
+	var script = load(path)
+	if not script:
+		return {"error": "Failed to load script: %s" % path}
+
+	node.set_script(script)
+	node.owner = EditorInterface.get_edited_scene_root()
+	return {"ok": true, "node_path": node_path, "script_path": path}
+
+
+func _cmd_get_signals(node_path: String) -> Dictionary:
+	if node_path.is_empty():
+		return {"error": "node_path is required"}
+
+	var node := _resolve_node(node_path)
+	if not node:
+		return {"error": "Node not found: %s" % node_path}
+
+	var root := EditorInterface.get_edited_scene_root()
+	var signals: Array[Dictionary] = []
+	for sig in node.get_signal_list():
+		var sig_name: String = sig["name"]
+		var connections: Array[Dictionary] = []
+		for conn in node.get_signal_connection_list(sig_name):
+			var target: Node = conn["callable"].get_object()
+			var target_path := str(root.get_path_to(target)) if target and root else ""
+			connections.append({
+				"target": target_path,
+				"method": conn["callable"].get_method(),
+			})
+		var args: Array[String] = []
+		for arg in sig["args"]:
+			args.append("%s: %s" % [arg["name"], type_string(arg["type"])])
+		signals.append({
+			"name": sig_name,
+			"args": args,
+			"connections": connections,
+		})
+
+	return {"ok": true, "node_path": node_path, "signals": signals}
+
+
+func _cmd_connect_signal(source_path: String, signal_name: String, target_path: String, method_name: String) -> Dictionary:
+	if source_path.is_empty() or signal_name.is_empty() or target_path.is_empty() or method_name.is_empty():
+		return {"error": "source_path, signal_name, target_path, and method are all required"}
+
+	var source := _resolve_node(source_path)
+	if not source:
+		return {"error": "Source node not found: %s" % source_path}
+
+	var target := _resolve_node(target_path)
+	if not target:
+		return {"error": "Target node not found: %s" % target_path}
+
+	if not source.has_signal(signal_name):
+		return {"error": "Signal '%s' not found on node: %s" % [signal_name, source_path]}
+
+	if not target.has_method(method_name):
+		return {"error": "Method '%s' not found on node: %s" % [method_name, target_path]}
+
+	if source.is_connected(signal_name, Callable(target, method_name)):
+		return {"error": "Signal '%s' is already connected to '%s.%s'" % [signal_name, target_path, method_name]}
+
+	source.connect(signal_name, Callable(target, method_name))
+	return {"ok": true, "signal": signal_name, "source": source_path, "target": target_path, "method": method_name}
+
+
+func _cmd_list_resources(directory: String, extensions: Array) -> Dictionary:
+	if directory.is_empty():
+		directory = "res://"
+
+	var default_extensions := ["tscn", "scn", "gd", "tres", "res", "gdshader"]
+	var ext_filter: Array = extensions if extensions.size() > 0 else default_extensions
+
+	var files: Array[String] = []
+	_scan_directory(directory, ext_filter, files)
+	return {"ok": true, "files": files, "count": files.size()}
+
+
+func _scan_directory(path: String, extensions: Array, results: Array[String]) -> void:
+	var dir := DirAccess.open(path)
+	if not dir:
+		return
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		var full_path := path.path_join(file_name)
+		if dir.current_is_dir():
+			if file_name != "." and file_name != ".." and file_name != ".godot" and file_name != ".git":
+				_scan_directory(full_path, extensions, results)
+		else:
+			var ext := file_name.get_extension()
+			if ext in extensions:
+				results.append(full_path)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+
+
+func _cmd_instantiate_scene(parent_path: String, scene_path: String, node_name: String) -> Dictionary:
+	if parent_path.is_empty() or scene_path.is_empty():
+		return {"error": "parent_path and scene_path are required"}
+
+	var root := EditorInterface.get_edited_scene_root()
+	if not root:
+		return {"error": "No scene is currently open in the editor"}
+
+	var parent := _resolve_node(parent_path)
+	if not parent:
+		return {"error": "Parent node not found: %s" % parent_path}
+
+	if not ResourceLoader.exists(scene_path):
+		return {"error": "Scene file not found: %s" % scene_path}
+
+	var packed: PackedScene = load(scene_path)
+	if not packed:
+		return {"error": "Failed to load scene: %s" % scene_path}
+
+	var instance := packed.instantiate()
+	if not instance:
+		return {"error": "Failed to instantiate scene: %s" % scene_path}
+
+	if not node_name.is_empty():
+		instance.name = node_name
+
+	parent.add_child(instance)
+	instance.owner = root
+	# Also set owner on all children so they save properly
+	_set_owner_recursive(instance, root)
+	var rel_path := str(root.get_path_to(instance))
+	return {"ok": true, "path": rel_path, "scene_path": scene_path}
+
+
+func _set_owner_recursive(node: Node, owner: Node) -> void:
+	for child in node.get_children():
+		child.owner = owner
+		_set_owner_recursive(child, owner)
+
+
+func _cmd_get_output() -> Dictionary:
+	# Read the latest Godot log file
+	var log_path := "user://logs/godot.log"
+	if not FileAccess.file_exists(log_path):
+		return {"ok": true, "lines": [], "note": "No log file found"}
+
+	var file := FileAccess.open(log_path, FileAccess.READ)
+	if not file:
+		return {"error": "Cannot open log file"}
+
+	var content := file.get_as_text()
+	file.close()
+
+	# Return last 50 lines
+	var lines := content.split("\n", false)
+	var start := max(0, lines.size() - 50)
+	var recent: Array[String] = []
+	for i in range(start, lines.size()):
+		recent.append(lines[i])
+
+	return {"ok": true, "lines": recent, "total_lines": lines.size()}
+
+
+func _cmd_undo() -> Dictionary:
+	var ur := get_undo_redo()
+	var root := EditorInterface.get_edited_scene_root()
+	if root:
+		var history := ur.get_history_undo_redo(root.get_instance_id())
+		if history and history.has_undo():
+			history.undo()
+			return {"ok": true, "action": "undo", "scope": "scene"}
+
+	# Try global history
+	var global := ur.get_history_undo_redo(0)
+	if global and global.has_undo():
+		global.undo()
+		return {"ok": true, "action": "undo", "scope": "global"}
+
+	return {"error": "Nothing to undo"}
+
+
+func _cmd_redo() -> Dictionary:
+	var ur := get_undo_redo()
+	var root := EditorInterface.get_edited_scene_root()
+	if root:
+		var history := ur.get_history_undo_redo(root.get_instance_id())
+		if history and history.has_redo():
+			history.redo()
+			return {"ok": true, "action": "redo", "scope": "scene"}
+
+	var global := ur.get_history_undo_redo(0)
+	if global and global.has_redo():
+		global.redo()
+		return {"ok": true, "action": "redo", "scope": "global"}
+
+	return {"error": "Nothing to redo"}
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
+func _resolve_node(node_path: String) -> Node:
+	var root := EditorInterface.get_edited_scene_root()
+	if not root:
+		return null
+	if node_path == "." or node_path == root.name:
+		return root
+	if node_path.begins_with("/root"):
+		return root.get_node_or_null(_strip_root_prefix(node_path, root))
+	return root.get_node_or_null(NodePath(node_path))
+
 
 func _strip_root_prefix(path: String, root: Node) -> NodePath:
 	# Convert absolute "/root/Main/Foo" paths to relative paths from scene root
