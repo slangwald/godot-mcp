@@ -14,15 +14,15 @@ Three components communicate over localhost TCP:
 
 ```
 Claude Code ←stdio→ Python MCP Server ←TCP:9500→ Godot Editor Plugin
-                                                       ↓ (runs game)
-                                                  Godot Game (autoload) ←TCP:9501→ Python MCP Server
+													   ↓ (runs game)
+												  Godot Game (autoload) ←TCP:9501→ Python MCP Server
 ```
 
 ### MCP Server (`mcp/godot_mcp_server.py`)
 
 Python FastMCP server. Talks to Claude Code via stdio, forwards commands to Godot over TCP. Cross-platform (Mac, Windows, Linux).
 
-**Editor tools** (port 9500): `get_scene_tree`, `get_node_properties`, `modify_node`, `create_node`, `delete_node`, `run_project`, `stop_project`, `save_scene`, `get_editor_state`
+**Editor tools** (port 9500): `get_scene_tree`, `get_node_properties`, `modify_node`, `create_node`, `delete_node`, `run_project`, `run_scene`, `stop_project`, `save_scene`, `get_editor_state`, `open_scene`, `set_resource`
 
 **Game tools** (port 9501): `screenshot` (returns PNG as base64 image), `get_runtime_tree`
 
@@ -45,11 +45,12 @@ Autoload singleton injected into the running game. TCP server on port 9501. Capt
 │   └── plugin.gd                   # Editor plugin (TCP:9500)
 ├── mcp_bridge_game.gd              # Game autoload (TCP:9501)
 ├── project.godot                   # Godot project config
-├── main.tscn / main.gd            # Sample app: Kanban board
-├── kanban_column.tscn / .gd       # Sample app: column component
-├── kanban_card.tscn / .gd         # Sample app: card component
-├── board_data.gd / column_data.gd / card_data.gd  # Sample app: data model
-└── board_manager.gd               # Sample app: persistence
+└── examples/kanban/                # Sample app: Kanban board
+	├── main.tscn / main.gd        #   Main scene & script
+	├── kanban_column.tscn / .gd   #   Column component
+	├── kanban_card.tscn / .gd     #   Card component
+	├── board_data.gd / column_data.gd / card_data.gd  #   Data model
+	└── board_manager.gd           #   Persistence (autoload)
 ```
 
 ## Setup

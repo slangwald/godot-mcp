@@ -138,6 +138,49 @@ def get_editor_state() -> str:
     return json.dumps(result, indent=2)
 
 
+@mcp.tool()
+def open_scene(path: str) -> str:
+    """Open a scene file in the Godot editor.
+
+    Args:
+        path: Resource path to the scene (e.g. "res://examples/cube/cube.tscn")
+    """
+    result = _send_to_editor({"cmd": "open_scene", "path": path})
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def run_scene(path: str) -> str:
+    """Run a specific scene in Godot (instead of the main scene). The game will start in a new window.
+
+    Args:
+        path: Resource path to the scene (e.g. "res://examples/cube/cube.tscn")
+    """
+    result = _send_to_editor({"cmd": "run_scene", "path": path})
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def set_resource(node_path: str, property: str, resource_type: str, resource_properties: dict = {}) -> str:
+    """Create a Resource and assign it to a node property in the editor scene tree.
+    Use this for properties that hold Resources (meshes, materials, environments, etc.).
+
+    Args:
+        node_path: Path to the node (e.g. "Cube")
+        property: Property name to set (e.g. "mesh", "surface_material_override/0", "environment")
+        resource_type: Godot Resource class (e.g. "BoxMesh", "StandardMaterial3D", "Environment")
+        resource_properties: Optional dict of properties to set on the new resource (e.g. {"size": {"x": 2, "y": 2, "z": 2}})
+    """
+    result = _send_to_editor({
+        "cmd": "set_resource",
+        "node_path": node_path,
+        "property": property,
+        "resource_type": resource_type,
+        "resource_properties": resource_properties,
+    })
+    return json.dumps(result, indent=2)
+
+
 # ── Game tools (via autoload on TCP:9501) ─────────────────────────────────────
 
 

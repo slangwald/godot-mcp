@@ -1,5 +1,15 @@
 [project]
 name = "godot-mcp"
 version = "0.1.0"
+description = "MCP server that connects Claude Code to the Godot 4.6 game engine"
 requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "slangwald" },
+]
 dependencies = ["mcp[cli]"]
+
+[project.urls]
+Homepage = "https://github.com/slangwald/godot-mcp"
+Repository = "https://github.com/slangwald/godot-mcp"
+Issues = "https://github.com/slangwald/godot-mcp/issues"

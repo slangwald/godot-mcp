@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://kanban_card.gd" id="1_script"]
+[ext_resource type="Script" path="res://examples/kanban/kanban_card.gd" id="1_script"]
 
 [node name="KanbanCard" type="PanelContainer"]
 custom_minimum_size = Vector2(0, 40)

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cl3vtw6n2ehh0"]
 
-[ext_resource type="Script" uid="uid://u4bsbyyj7vgf" path="res://main.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://u4bsbyyj7vgf" path="res://examples/kanban/main.gd" id="1_script"]
 
 [node name="Main" type="Control" unique_id=1202669236]
 layout_mode = 3

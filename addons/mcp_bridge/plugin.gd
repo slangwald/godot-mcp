@@ -84,12 +84,18 @@ func _handle_request(client: StreamPeerTCP, data: String) -> void:
 			response = _cmd_delete_node(request.get("node_path", ""))
 		"run_project":
 			response = _cmd_run_project()
+		"run_scene":
+			response = _cmd_run_scene(request.get("path", ""))
 		"stop_project":
 			response = _cmd_stop_project()
 		"save_scene":
 			response = _cmd_save_scene()
 		"get_editor_state":
 			response = _cmd_get_editor_state()
+		"open_scene":
+			response = _cmd_open_scene(request.get("path", ""))
+		"set_resource":
+			response = _cmd_set_resource(request.get("node_path", ""), request.get("property", ""), request.get("resource_type", ""), request.get("resource_properties", {}))
 		_:
 			response = {"error": "Unknown command: %s" % cmd}
 
@@ -247,6 +253,15 @@ func _cmd_stop_project() -> Dictionary:
 	return {"ok": true, "action": "stop_playing_scene"}
 
 
+func _cmd_run_scene(path: String) -> Dictionary:
+	if path.is_empty():
+		return {"error": "path is required (e.g. \"res://examples/cube/cube.tscn\")"}
+	if not ResourceLoader.exists(path):
+		return {"error": "Scene file not found: %s" % path}
+	EditorInterface.play_custom_scene(path)
+	return {"ok": true, "action": "play_custom_scene", "scene_path": path}
+
+
 func _cmd_save_scene() -> Dictionary:
 	EditorInterface.save_scene()
 	return {"ok": true, "action": "save_scene"}
@@ -261,6 +276,45 @@ func _cmd_get_editor_state() -> Dictionary:
 		"scene_path": root.scene_file_path if root else "",
 		"is_playing": EditorInterface.is_playing_scene(),
 	}
+
+
+func _cmd_set_resource(node_path: String, property: String, resource_type: String, resource_properties: Dictionary) -> Dictionary:
+	if node_path.is_empty() or property.is_empty() or resource_type.is_empty():
+		return {"error": "node_path, property, and resource_type are all required"}
+
+	var root := EditorInterface.get_edited_scene_root()
+	if not root:
+		return {"error": "No scene is currently open in the editor"}
+
+	var node: Node
+	if node_path == "." or node_path == root.name:
+		node = root
+	else:
+		node = root.get_node_or_null(NodePath(node_path)) if not node_path.begins_with("/root") else root.get_node_or_null(_strip_root_prefix(node_path, root))
+	if not node:
+		return {"error": "Node not found: %s" % node_path}
+
+	var resource: Resource = ClassDB.instantiate(resource_type)
+	if not resource:
+		return {"error": "Unknown resource type: %s" % resource_type}
+
+	for prop_name in resource_properties:
+		var value = resource_properties[prop_name]
+		if prop_name in resource:
+			var current = resource.get(prop_name)
+			resource.set(prop_name, _convert_value(value, typeof(current)))
+
+	node.set(property, resource)
+	return {"ok": true, "node_path": node_path, "property": property, "resource_type": resource_type}
+
+
+func _cmd_open_scene(path: String) -> Dictionary:
+	if path.is_empty():
+		return {"error": "path is required (e.g. \"res://examples/cube/cube.tscn\")"}
+	if not ResourceLoader.exists(path):
+		return {"error": "Scene file not found: %s" % path}
+	EditorInterface.open_scene_from_path(path)
+	return {"ok": true, "scene_path": path}
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

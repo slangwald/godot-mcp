@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://kanban_column.gd" id="1_script"]
+[ext_resource type="Script" path="res://examples/kanban/kanban_column.gd" id="1_script"]
 
 [node name="KanbanColumn" type="PanelContainer"]
 custom_minimum_size = Vector2(250, 0)

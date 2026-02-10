@@ -4,7 +4,7 @@ signal card_added(column_index: int, text: String)
 signal card_dropped(from_col: int, from_idx: int, to_col: int, to_idx: int)
 signal card_deleted(column_index: int, card_index: int)
 
-const KanbanCard = preload("res://kanban_card.tscn")
+const KanbanCard = preload("res://examples/kanban/kanban_card.tscn")
 
 var column_index: int
 

@@ -1,6 +1,6 @@
 extends Control
 
-const KanbanColumn = preload("res://kanban_column.tscn")
+const KanbanColumn = preload("res://examples/kanban/kanban_column.tscn")
 
 @onready var column_container: HBoxContainer = $MarginContainer/VBoxContainer/ColumnContainer
 

@@ -1,5 +1,9 @@
 # Godot MCP Server
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Godot 4.6](https://img.shields.io/badge/Godot-4.6-blue?logo=godotengine&logoColor=white)](https://godotengine.org/)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)](https://www.python.org/)
+
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that connects [Claude Code](https://docs.anthropic.com/en/docs/claude-code) to the [Godot 4.6](https://godotengine.org/) game engine.
 
 Claude can run your project, take screenshots, inspect and edit the scene tree, and iterate on your game — all from the terminal.
@@ -15,11 +19,14 @@ Claude can run your project, take screenshots, inspect and edit the scene tree, 
 | `modify_node` | Change node properties (text, position, color, etc.) |
 | `create_node` | Add new nodes to the scene |
 | `delete_node` | Remove nodes from the scene |
+| `set_resource` | Create and assign Resources (meshes, materials, etc.) to nodes |
 | `run_project` | Launch the game from the editor |
+| `run_scene` | Run a specific scene (not just the main scene) |
 | `stop_project` | Stop the running game |
 | `screenshot` | Capture the game viewport as a PNG image |
 | `get_runtime_tree` | Inspect the live scene tree while the game runs |
 | `save_scene` | Save the current scene |
+| `open_scene` | Open a scene file in the editor |
 | `get_editor_state` | Check which scene is open, whether the game is running |
 
 ## How It Works
@@ -48,7 +55,7 @@ Screenshots are sent as base64-encoded PNG over TCP — no temp files, no filesy
 ### 1. Clone and open in Godot
 
 ```bash
-git clone https://github.com/your-username/godot-mcp.git
+git clone https://github.com/slangwald/godot-mcp.git
 cd godot-mcp
 ```
 
@@ -102,7 +109,7 @@ The MCP server is not tied to the sample app. To use it with any Godot 4.6 proje
 
 ## Sample App
 
-The included Kanban board is a simple demo for testing the MCP tools. Three columns (To Do, In Progress, Done), drag-and-drop cards, persistent storage via Godot Resources.
+The included Kanban board (`examples/kanban/`) is a simple demo for testing the MCP tools. Three columns (To Do, In Progress, Done), drag-and-drop cards, persistent storage via Godot Resources.
 
 ## Platform Support
 
