@@ -8,9 +8,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 
 Claude can run your project, take screenshots, inspect and edit the scene tree, click through UI, and iterate on your game — all from the terminal.
 
-[![Demo — click to watch](screenshot.png)](demo.mp4)
-
-> **Click the image above to watch the demo video** — Claude navigates through three sample games built entirely with MCP tools.
+<video src="https://raw.githubusercontent.com/slangwald/godot-mcp/main/demo.mp4" controls autoplay loop muted width="600"></video>
 
 ## What Can It Do?
 
