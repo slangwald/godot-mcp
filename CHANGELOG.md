@@ -7,6 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ## Roadmap
 
 - Automated plugin installation (search, find, and install Godot plugins via MCP)
+- Game play-testing tools: property streaming, frame stepping, assertions
+
+## [0.2.0] - 2026-02-10
+
+### Added
+
+- 11 new editor tools: `set_resource`, `attach_script`, `set_script`, `get_signals`, `connect_signal`, `instantiate_scene`, `list_resources`, `run_scene`, `open_scene`, `get_output`, `undo`/`redo`
+- Game interaction: `click` tool to simulate mouse input at viewport coordinates
+- Demo capture script (`scripts/capture_demo.py`) for screen-recording gameplay via x11grab
+- Three new sample apps built entirely with MCP tools:
+  - Spinning Cube — 3D scene with lighting and environment
+  - Cookie Clicker — idle clicker with auto-clickers and upgrades
+  - Launcher — menu scene with persistent nav bar for switching between demos
+- Demo video (`demo.mp4`) showing all sample apps
 
 ## [0.1.0] - 2025-06-07
 

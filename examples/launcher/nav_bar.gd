@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const NAV_HEIGHT := 36
+
 const SCENES := {
 	"menu": "res://examples/launcher/launcher.tscn",
 	"kanban": "res://examples/kanban/main.tscn",
@@ -15,7 +17,7 @@ func _ready() -> void:
 
 	var panel := PanelContainer.new()
 	panel.anchor_right = 1.0
-	panel.size = Vector2(0, 40)
+	panel.size = Vector2(0, NAV_HEIGHT)
 	add_child(panel)
 
 	var style := StyleBoxFlat.new()
@@ -37,6 +39,10 @@ func _ready() -> void:
 	_add_button("Cube", SCENES["cube"])
 	_add_button("Cookie", SCENES["cookie"])
 
+	get_tree().node_added.connect(_on_node_added)
+	# Push the initial scene down too
+	call_deferred("_push_scene_down")
+
 
 func _add_button(label: String, scene_path: String) -> void:
 	var btn := Button.new()
@@ -51,3 +57,15 @@ func _add_separator() -> void:
 	var sep := VSeparator.new()
 	sep.custom_minimum_size.x = 2
 	bar.add_child(sep)
+
+
+func _push_scene_down() -> void:
+	var scene := get_tree().current_scene
+	if scene is Control:
+		scene.offset_top = NAV_HEIGHT
+
+
+func _on_node_added(node: Node) -> void:
+	# When a new scene root is added, push it down
+	if node == get_tree().current_scene:
+		call_deferred("_push_scene_down")

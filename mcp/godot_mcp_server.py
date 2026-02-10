@@ -310,6 +310,18 @@ def screenshot() -> Image:
 
 
 @mcp.tool()
+def click(x: float, y: float) -> str:
+    """Simulate a mouse click at viewport coordinates in the running Godot game.
+
+    Args:
+        x: X coordinate in pixels from the left edge
+        y: Y coordinate in pixels from the top edge
+    """
+    result = _send_to_game({"cmd": "click", "x": x, "y": y})
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
 def get_runtime_tree() -> str:
     """Get the live scene tree from the running Godot game. The game must be running first."""
     result = _send_to_game({"cmd": "get_runtime_tree"})

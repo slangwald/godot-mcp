@@ -9,3 +9,7 @@
 mcp/.venv/
 mcp/uv.lock
 __pycache__/
+
+# Demo capture artifacts
+demo_frames/
+demo.gif

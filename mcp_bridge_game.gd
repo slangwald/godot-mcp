@@ -5,6 +5,7 @@ const PORT := 9501
 var tcp_server: TCPServer
 var clients: Array[StreamPeerTCP] = []
 var pending_screenshot_client: StreamPeerTCP = null
+var _deferred_release: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -77,6 +78,10 @@ func _handle_request(client: StreamPeerTCP, data: String) -> void:
 			RenderingServer.force_draw()
 		"get_runtime_tree":
 			_send_response(client, _cmd_get_runtime_tree())
+		"click":
+			var x: float = request.get("x", 0.0)
+			var y: float = request.get("y", 0.0)
+			_send_response(client, _cmd_click(x, y))
 		_:
 			_send_response(client, {"error": "Unknown command: %s" % cmd})
 
@@ -96,6 +101,29 @@ func _on_frame_post_draw() -> void:
 	var png_bytes := image.save_png_to_buffer()
 	var b64 := Marshalls.raw_to_base64(png_bytes)
 	_send_response(client, {"ok": true, "image_base64": b64})
+
+
+func _cmd_click(x: float, y: float) -> Dictionary:
+	# Simulate mouse press
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.position = Vector2(x, y)
+	press.global_position = Vector2(x, y)
+	press.pressed = true
+	get_viewport().push_input(press)
+	# Defer the release to next frame so the UI processes the press first
+	_deferred_release = Vector2(x, y)
+	call_deferred("_send_mouse_release")
+	return {"ok": true, "x": x, "y": y}
+
+
+func _send_mouse_release() -> void:
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.position = _deferred_release
+	release.global_position = _deferred_release
+	release.pressed = false
+	get_viewport().push_input(release)
 
 
 func _cmd_get_runtime_tree() -> Dictionary:

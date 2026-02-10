@@ -6,11 +6,15 @@
 
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that connects [Claude Code](https://docs.anthropic.com/en/docs/claude-code) to the [Godot 4.6](https://godotengine.org/) game engine.
 
-Claude can run your project, take screenshots, inspect and edit the scene tree, and iterate on your game — all from the terminal.
+Claude can run your project, take screenshots, inspect and edit the scene tree, click through UI, and iterate on your game — all from the terminal.
 
-![Screenshot of the sample Kanban board captured via the MCP screenshot tool](screenshot.png)
+[![Demo — click to watch](screenshot.png)](demo.mp4)
+
+> **Click the image above to watch the demo video** — Claude navigates through three sample games built entirely with MCP tools.
 
 ## What Can It Do?
+
+### Editor Tools (port 9500)
 
 | Tool | Description |
 |------|-------------|
@@ -29,25 +33,31 @@ Claude can run your project, take screenshots, inspect and edit the scene tree, 
 | `run_project` | Launch the game from the editor |
 | `run_scene` | Run a specific scene (not just the main scene) |
 | `stop_project` | Stop the running game |
-| `screenshot` | Capture the game viewport as a PNG image |
-| `get_runtime_tree` | Inspect the live scene tree while the game runs |
 | `save_scene` | Save the current scene |
 | `open_scene` | Open a scene file in the editor |
 | `get_editor_state` | Check which scene is open, whether the game is running |
 | `get_output` | Read recent Godot editor log output (prints, errors) |
 | `undo` / `redo` | Undo or redo the last editor action |
 
+### Game Tools (port 9501)
+
+| Tool | Description |
+|------|-------------|
+| `screenshot` | Capture the game viewport as a PNG image |
+| `click` | Simulate a mouse click at viewport coordinates |
+| `get_runtime_tree` | Inspect the live scene tree while the game runs |
+
 ## How It Works
 
 ```
-Claude Code ←stdio→ Python MCP Server ←TCP:9500→ Godot Editor Plugin
-                                                       ↓
-                                                  Running Game ←TCP:9501→ Python MCP Server
+Claude Code <--stdio--> Python MCP Server <--TCP:9500--> Godot Editor Plugin
+                                                              |
+                                                         Running Game <--TCP:9501--> Python MCP Server
 ```
 
 - **Python MCP Server** — Bridges Claude Code (via stdio) to Godot (via TCP). This is what Claude talks to.
 - **Editor Plugin** — Runs inside the Godot editor. Listens on port 9500. Handles scene tree operations, running/stopping the project, saving.
-- **Game Autoload** — Injected into the running game. Listens on port 9501. Captures screenshots and exposes the runtime scene tree.
+- **Game Autoload** — Injected into the running game. Listens on port 9501. Captures screenshots, simulates input, and exposes the runtime scene tree.
 
 Screenshots are sent as base64-encoded PNG over TCP — no temp files, no filesystem dependencies.
 
@@ -94,15 +104,15 @@ You should see the Godot tools available. With the Godot editor open, try:
 
 ## Adding to Your Own Godot Project
 
-The MCP server is not tied to the sample app. To use it with any Godot 4.6 project:
+The MCP server is not tied to the sample apps. To use it with any Godot 4.6 project:
 
 1. **Copy the plugin** — Copy `addons/mcp_bridge/` into your project's `addons/` directory
 
 2. **Copy the game autoload** — Copy `mcp_bridge_game.gd` to your project root
 
-3. **Enable the plugin** — In Godot: Project → Project Settings → Plugins → Enable "MCP Bridge"
+3. **Enable the plugin** — In Godot: Project > Project Settings > Plugins > Enable "MCP Bridge"
 
-4. **Add the autoload** — In Godot: Project → Project Settings → Autoload → Add `mcp_bridge_game.gd` as `McpBridgeGame`
+4. **Add the autoload** — In Godot: Project > Project Settings > Autoload > Add `mcp_bridge_game.gd` as `McpBridgeGame`
 
    Or manually add to your `project.godot`:
    ```ini
@@ -115,9 +125,15 @@ The MCP server is not tied to the sample app. To use it with any Godot 4.6 proje
 
 5. **Register the MCP server** with Claude Code (same command as above, pointing to this repo's `mcp/` directory)
 
-## Sample App
+## Sample Apps
 
-The included Kanban board (`examples/kanban/`) is a simple demo for testing the MCP tools. Three columns (To Do, In Progress, Done), drag-and-drop cards, persistent storage via Godot Resources.
+The `examples/` directory contains three demos built entirely using MCP tools:
+
+- **Kanban Board** (`examples/kanban/`) — Drag-and-drop task board with three columns and persistent storage
+- **Spinning Cube** (`examples/cube/`) — 3D scene with a rotating cube, dynamic lighting, and environment effects
+- **Cookie Clicker** (`examples/cookie_clicker/`) — Idle clicker game with auto-clickers and upgrade shop
+
+A launcher (`examples/launcher/`) ties them together with a persistent nav bar for switching between scenes.
 
 ## Platform Support
 
@@ -129,7 +145,7 @@ Both the editor plugin (port 9500) and game autoload (port 9501) use the same si
 
 - **Request:** JSON with a `"cmd"` key, newline-terminated
 - **Response:** JSON, newline-terminated
-- **Connections** are short-lived (connect → send → receive → close)
+- **Connections** are short-lived (connect > send > receive > close)
 
 Example:
 ```json
@@ -151,7 +167,7 @@ This means you can also use the Godot bridge from any TCP client, not just throu
 
 **Tools not showing up in Claude Code**
 - MCP servers load at session startup. Start a new `claude` session after registering.
-- Verify with `claude mcp list` — you should see `godot-mcp: ✓ Connected`
+- Verify with `claude mcp list` — you should see `godot-mcp: connected`
 
 **Screenshot returns an error**
 - The game must be running and have rendered at least one frame. Wait a moment after `run_project` before calling `screenshot`.

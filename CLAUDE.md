@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **Model Context Protocol (MCP) server** that bridges Claude Code to the Godot 4.6 game engine. It lets Claude run projects, inspect and modify scene trees, take screenshots of the running game, and iterate on Godot projects — all without leaving the terminal.
 
-The repo includes a sample Kanban board app as a demo project to test against.
+The repo includes three sample apps (Kanban board, spinning cube, cookie clicker) as demos to test against.
 
 ## Architecture
 
@@ -24,7 +24,7 @@ Python FastMCP server. Talks to Claude Code via stdio, forwards commands to Godo
 
 **Editor tools** (port 9500): `get_scene_tree`, `get_node_properties`, `modify_node`, `create_node`, `delete_node`, `set_resource`, `attach_script`, `set_script`, `get_signals`, `connect_signal`, `instantiate_scene`, `list_resources`, `run_project`, `run_scene`, `stop_project`, `save_scene`, `get_editor_state`, `open_scene`, `get_output`, `undo`, `redo`
 
-**Game tools** (port 9501): `screenshot` (returns PNG as base64 image), `get_runtime_tree`
+**Game tools** (port 9501): `screenshot` (returns PNG as base64 image), `click` (simulate mouse input), `get_runtime_tree`
 
 ### Editor Plugin (`addons/mcp_bridge/`)
 
@@ -45,12 +45,13 @@ Autoload singleton injected into the running game. TCP server on port 9501. Capt
 │   └── plugin.gd                   # Editor plugin (TCP:9500)
 ├── mcp_bridge_game.gd              # Game autoload (TCP:9501)
 ├── project.godot                   # Godot project config
-└── examples/kanban/                # Sample app: Kanban board
-	├── main.tscn / main.gd        #   Main scene & script
-	├── kanban_column.tscn / .gd   #   Column component
-	├── kanban_card.tscn / .gd     #   Card component
-	├── board_data.gd / column_data.gd / card_data.gd  #   Data model
-	└── board_manager.gd           #   Persistence (autoload)
+├── scripts/
+│   └── capture_demo.py            # Screen-record demo video
+└── examples/
+    ├── launcher/                   # Launcher scene + nav bar
+    ├── kanban/                     # Sample: Kanban board
+    ├── cube/                       # Sample: 3D spinning cube
+    └── cookie_clicker/             # Sample: Cookie clicker game
 ```
 
 ## Setup
