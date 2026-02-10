@@ -1,0 +1,93 @@
+[gd_scene format=3 uid="uid://b15hvbrf4cpfe"]
+
+[sub_resource type="GDScript" id="GDScript_cksos"]
+script/source = "extends Control
+
+const SCENES := {
+	\"kanban\": \"res://examples/kanban/main.tscn\",
+	\"cube\": \"res://examples/cube/cube.tscn\",
+	\"cookie\": \"res://examples/cookie_clicker/cookie_clicker.tscn\",
+}
+
+@onready var kanban_btn: Button = $Center/Buttons/KanbanButton
+@onready var cube_btn: Button = $Center/Buttons/CubeButton
+@onready var cookie_btn: Button = $Center/Buttons/CookieButton
+
+
+func _ready() -> void:
+	kanban_btn.pressed.connect(func(): get_tree().change_scene_to_file(SCENES[\"kanban\"]))
+	cube_btn.pressed.connect(func(): get_tree().change_scene_to_file(SCENES[\"cube\"]))
+	cookie_btn.pressed.connect(func(): get_tree().change_scene_to_file(SCENES[\"cookie\"]))
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(\"ui_cancel\"):
+		get_tree().change_scene_to_file(\"res://examples/launcher/launcher.tscn\")
+"
+
+[node name="Launcher" type="Control" unique_id=1478478391]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_cksos")
+
+[node name="Background" type="ColorRect" parent="." unique_id=344533209]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.14, 1)
+
+[node name="Center" type="VBoxContainer" parent="." unique_id=2106667217]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="Title" type="Label" parent="Center" unique_id=715130320]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Godot MCP Demos"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center" unique_id=1986648149]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "All scenes built with MCP tools"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Center" unique_id=1499798455]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="Buttons" type="VBoxContainer" parent="Center" unique_id=839904903]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="KanbanButton" type="Button" parent="Center/Buttons" unique_id=583233828]
+custom_minimum_size = Vector2(350, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Kanban Board"
+
+[node name="CubeButton" type="Button" parent="Center/Buttons" unique_id=1648345625]
+custom_minimum_size = Vector2(350, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Spinning Cube"
+
+[node name="CookieButton" type="Button" parent="Center/Buttons" unique_id=1014332790]
+custom_minimum_size = Vector2(350, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Cookie Clicker"

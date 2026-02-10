@@ -1,0 +1,141 @@
+[gd_scene format=3 uid="uid://bi0mufwhtbtrm"]
+
+[sub_resource type="GDScript" id="GDScript_b5si1"]
+script/source = "extends Control
+
+var cookies: int = 0
+var per_click: int = 1
+var auto_clickers: int = 0
+var auto_clicker_cost: int = 10
+var double_click_cost: int = 50
+
+@onready var score_label: Label = $Layout/ScoreLabel
+@onready var per_second_label: Label = $Layout/PerSecondLabel
+@onready var cookie_button: Button = $Layout/CookieButton
+@onready var auto_button: Button = $Layout/AutoClickerButton
+@onready var double_button: Button = $Layout/DoubleClickButton
+@onready var auto_timer: Timer = $AutoTimer
+
+
+func _ready() -> void:
+	cookie_button.pressed.connect(_on_cookie_pressed)
+	auto_button.pressed.connect(_on_auto_clicker_pressed)
+	double_button.pressed.connect(_on_double_click_pressed)
+	auto_timer.timeout.connect(_on_auto_timer)
+	_update_ui()
+
+
+func _on_cookie_pressed() -> void:
+	cookies += per_click
+	_update_ui()
+
+
+func _on_auto_clicker_pressed() -> void:
+	if cookies >= auto_clicker_cost:
+		cookies -= auto_clicker_cost
+		auto_clickers += 1
+		auto_clicker_cost = int(auto_clicker_cost * 1.5)
+		_update_ui()
+
+
+func _on_double_click_pressed() -> void:
+	if cookies >= double_click_cost:
+		cookies -= double_click_cost
+		per_click *= 2
+		double_click_cost *= 3
+		_update_ui()
+
+
+func _on_auto_timer() -> void:
+	if auto_clickers > 0:
+		cookies += auto_clickers
+		_update_ui()
+
+
+func _update_ui() -> void:
+	score_label.text = \"%d cookies\" % cookies
+	per_second_label.text = \"%d per second | %d per click\" % [auto_clickers, per_click]
+	auto_button.text = \"Auto Clicker [%d] (Cost: %d)\" % [auto_clickers, auto_clicker_cost]
+	double_button.text = \"Double Click x%d (Cost: %d)\" % [per_click, double_click_cost]
+	auto_button.disabled = cookies < auto_clicker_cost
+	double_button.disabled = cookies < double_click_cost
+"
+
+[node name="CookieClicker" type="Control" unique_id=1144580167]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_b5si1")
+
+[node name="Background" type="ColorRect" parent="." unique_id=898333158]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.11, 0.18, 1)
+
+[node name="Layout" type="VBoxContainer" parent="." unique_id=1635247873]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Title" type="Label" parent="Layout" unique_id=1953293121]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Cookie Clicker"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="Layout" unique_id=508214236]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "0 cookies"
+horizontal_alignment = 1
+
+[node name="PerSecondLabel" type="Label" parent="Layout" unique_id=638839769]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "0 per second"
+horizontal_alignment = 1
+
+[node name="CookieButton" type="Button" parent="Layout" unique_id=809376758]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 40
+text = "COOKIE"
+
+[node name="Sep" type="HSeparator" parent="Layout" unique_id=1568558447]
+layout_mode = 2
+
+[node name="ShopTitle" type="Label" parent="Layout" unique_id=559831638]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "UPGRADES"
+horizontal_alignment = 1
+
+[node name="AutoClickerButton" type="Button" parent="Layout" unique_id=1961056532]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 18
+text = "Auto Clicker (Cost: 10)"
+
+[node name="DoubleClickButton" type="Button" parent="Layout" unique_id=641126702]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 18
+text = "Double Click (Cost: 50)"
+
+[node name="AutoTimer" type="Timer" parent="." unique_id=801253150]
+autostart = true

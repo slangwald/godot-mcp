@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Kanban Board"
-run/main_scene="res://examples/kanban/main.tscn"
+config/name="Godot MCP Demos"
+run/main_scene="res://examples/launcher/launcher.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 run/low_processor_mode=true
 config/icon="res://icon.svg"
@@ -24,6 +24,7 @@ driver/driver="Dummy"
 
 BoardManager="*res://examples/kanban/board_manager.gd"
 McpBridgeGame="*res://mcp_bridge_game.gd"
+NavBar="*res://examples/launcher/nav_bar.gd"
 
 [display]
 
