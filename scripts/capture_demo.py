@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Record a smooth demo video of the Godot MCP Demos by screen-capturing the game window."""
 
+import configparser
 import json
 import os
 import re
@@ -13,6 +14,12 @@ import time
 GAME_PORT = 9501
 TIMEOUT = 10.0
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+_config_path = os.path.join(SCRIPT_DIR, "..", "mcp_ports.cfg")
+if os.path.exists(_config_path):
+    _cfg = configparser.ConfigParser()
+    _cfg.read(_config_path)
+    GAME_PORT = _cfg.getint("mcp", "game_port", fallback=GAME_PORT)
 VIDEO_OUTPUT = os.path.join(SCRIPT_DIR, "..", "demo.mp4")
 
 

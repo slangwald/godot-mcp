@@ -1,7 +1,8 @@
 extends Node
 
-const PORT := 9501
+const DEFAULT_PORT := 9501
 
+var port := DEFAULT_PORT
 var tcp_server: TCPServer
 var clients: Array[StreamPeerTCP] = []
 var pending_screenshot_client: StreamPeerTCP = null
@@ -9,12 +10,15 @@ var _deferred_release: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
+	var config := ConfigFile.new()
+	if config.load("res://mcp_ports.cfg") == OK:
+		port = config.get_value("mcp", "game_port", DEFAULT_PORT)
 	tcp_server = TCPServer.new()
-	var err := tcp_server.listen(PORT, "127.0.0.1")
+	var err := tcp_server.listen(port, "127.0.0.1")
 	if err != OK:
-		push_error("MCP Bridge Game: Failed to listen on port %d (error %d)" % [PORT, err])
+		push_error("MCP Bridge Game: Failed to listen on port %d (error %d)" % [port, err])
 	else:
-		print("MCP Bridge Game: Listening on 127.0.0.1:%d" % PORT)
+		print("MCP Bridge Game: Listening on 127.0.0.1:%d" % port)
 	RenderingServer.frame_post_draw.connect(_on_frame_post_draw)
 
 

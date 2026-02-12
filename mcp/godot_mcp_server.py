@@ -1,8 +1,10 @@
 """Godot MCP Server — bridges Claude Code to Godot editor and running game."""
 
 import base64
+import configparser
 import json
 import socket
+from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP, Image
 
@@ -11,6 +13,14 @@ mcp = FastMCP("godot")
 EDITOR_PORT = 9500
 GAME_PORT = 9501
 TIMEOUT = 5.0
+
+# Load port config from project root (one level up from mcp/ directory)
+_config_path = Path(__file__).resolve().parent.parent / "mcp_ports.cfg"
+if _config_path.exists():
+    _cfg = configparser.ConfigParser()
+    _cfg.read(_config_path)
+    EDITOR_PORT = _cfg.getint("mcp", "editor_port", fallback=EDITOR_PORT)
+    GAME_PORT = _cfg.getint("mcp", "game_port", fallback=GAME_PORT)
 
 
 def _send_command(port: int, cmd: dict, timeout: float = TIMEOUT) -> dict:

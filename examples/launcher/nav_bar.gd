@@ -7,6 +7,7 @@ const SCENES := {
 	"kanban": "res://examples/kanban/main.tscn",
 	"cube": "res://examples/cube/cube.tscn",
 	"cookie": "res://examples/cookie_clicker/cookie_clicker.tscn",
+	"crossword": "res://examples/crossword/crossword.tscn",
 }
 
 var bar: HBoxContainer
@@ -38,6 +39,7 @@ func _ready() -> void:
 	_add_button("Kanban", SCENES["kanban"])
 	_add_button("Cube", SCENES["cube"])
 	_add_button("Cookie", SCENES["cookie"])
+	_add_button("Crossword", SCENES["crossword"])
 
 	get_tree().node_added.connect(_on_node_added)
 	# Push the initial scene down too

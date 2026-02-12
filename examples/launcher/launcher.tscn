@@ -7,17 +7,20 @@ const SCENES := {
 	\"kanban\": \"res://examples/kanban/main.tscn\",
 	\"cube\": \"res://examples/cube/cube.tscn\",
 	\"cookie\": \"res://examples/cookie_clicker/cookie_clicker.tscn\",
+	\"crossword\": \"res://examples/crossword/crossword.tscn\",
 }
 
 @onready var kanban_btn: Button = $Center/Buttons/KanbanButton
 @onready var cube_btn: Button = $Center/Buttons/CubeButton
 @onready var cookie_btn: Button = $Center/Buttons/CookieButton
+@onready var crossword_btn: Button = $Center/Buttons/CrosswordButton
 
 
 func _ready() -> void:
 	kanban_btn.pressed.connect(func(): get_tree().change_scene_to_file(SCENES[\"kanban\"]))
 	cube_btn.pressed.connect(func(): get_tree().change_scene_to_file(SCENES[\"cube\"]))
 	cookie_btn.pressed.connect(func(): get_tree().change_scene_to_file(SCENES[\"cookie\"]))
+	crossword_btn.pressed.connect(func(): get_tree().change_scene_to_file(SCENES[\"crossword\"]))
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -91,3 +94,9 @@ custom_minimum_size = Vector2(350, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Cookie Clicker"
+
+[node name="CrosswordButton" type="Button" parent="Center/Buttons" unique_id=499781244]
+custom_minimum_size = Vector2(350, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Crossword"

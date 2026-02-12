@@ -1,20 +1,24 @@
 @tool
 extends EditorPlugin
 
-const PORT := 9500
+const DEFAULT_PORT := 9500
 const BUFFER_SIZE := 65536
 
+var port := DEFAULT_PORT
 var tcp_server: TCPServer
 var clients: Array[StreamPeerTCP] = []
 
 
 func _enter_tree() -> void:
+	var config := ConfigFile.new()
+	if config.load("res://mcp_ports.cfg") == OK:
+		port = config.get_value("mcp", "editor_port", DEFAULT_PORT)
 	tcp_server = TCPServer.new()
-	var err := tcp_server.listen(PORT, "127.0.0.1")
+	var err := tcp_server.listen(port, "127.0.0.1")
 	if err != OK:
-		push_error("MCP Bridge: Failed to listen on port %d (error %d)" % [PORT, err])
+		push_error("MCP Bridge: Failed to listen on port %d (error %d)" % [port, err])
 	else:
-		print("MCP Bridge: Listening on 127.0.0.1:%d" % PORT)
+		print("MCP Bridge: Listening on 127.0.0.1:%d" % port)
 
 
 func _exit_tree() -> void:
